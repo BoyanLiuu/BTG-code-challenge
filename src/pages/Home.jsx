@@ -69,34 +69,35 @@ function Home() {
 	const [universityPagination, setUniversityPagination] =
 		useState(paginationInitial);
 
-	async function fetchUniversityData() {
-		let result = [];
-		if (
-			localStorage.wholeData &&
-			searchField.university === "" &&
-			searchField.country === ""
-		) {
-			// if we can find all data from localstorage we get it immediately
-			result = JSON.parse(localStorage.getItem("wholeData"));
-		} else {
-			const endpoint = `http://universities.hipolabs.com/search?name=${searchField.university}&country=${searchField.country}`;
-			result = await fetch(endpoint).then((res) => res.json());
+	useEffect(() => {
+		async function fetchUniversityData() {
+			let result = [];
+			if (
+				localStorage.wholeData &&
+				searchField.university === "" &&
+				searchField.country === ""
+			) {
+				// if we can find all data from localstorage we get it immediately
+				result = JSON.parse(localStorage.getItem("wholeData"));
+			} else {
+				const endpoint = `http://universities.hipolabs.com/search?name=${searchField.university}&country=${searchField.country}`;
+				result = await fetch(endpoint).then((res) => res.json());
+			}
+
+			setReady(true);
+			if (result.length === 0) setDataNoFound(true);
+
+			// initially we only display first 10 data
+			setUniversityData(result);
+			/*Set up pagination information */
+			setUniversityPagination((prev) => {
+				let curr = { ...prev };
+				curr.total = result.length;
+				curr.data = result.slice(0, 10);
+				return curr;
+			});
 		}
 
-		setReady(true);
-		if (result.length === 0) setDataNoFound(true);
-
-		/*Set up pagination information */
-
-		// initially we only display first 10 data
-		setUniversityData(result);
-
-		universityPagination.total = result.length;
-		universityPagination.data = result.slice(0, 10);
-		setUniversityPagination({ ...universityPagination });
-	}
-
-	useEffect(() => {
 		fetchUniversityData();
 	}, [searchField]);
 
