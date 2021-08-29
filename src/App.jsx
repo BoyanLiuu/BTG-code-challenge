@@ -14,6 +14,7 @@ function App() {
 		return true;
 	};
 	const [theme, setTheme] = useState(themeFlag());
+	// handle switch light them, dark them.
 	const themeToggler = () => {
 		setTheme(!theme);
 	};

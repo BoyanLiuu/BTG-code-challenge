@@ -2,11 +2,17 @@ import { createGlobalStyle } from "styled-components";
 
 export const lightTheme = {
 	bgColor: "hsl(210, 22%, 96%)",
+	cardColor: "hsl(0, 0%, 100%)",
+	searchInputColor: "hsl(219, 29%, 14%)",
+	uncheckedColor: "hsla(219, 29%, 14%,0.1)",
 	logoPosition: "0.5rem",
 };
 
 export const darkTheme = {
 	bgColor: "hsl(220, 29%, 10%)",
+	cardColor: "hsl(219, 29%, 14%)",
+	searchInputColor: "hsl(0, 0%, 100%)",
+	uncheckedColor: "hsla(0, 0%, 100%,0.1)",
 	logoPosition: "3rem",
 };
 
@@ -19,6 +25,9 @@ export const GlobalStyle = createGlobalStyle`
         --scroll-bar-color: rgba(70, 70, 207, 0.6);
         --hovered-scroll-bar-color: rgba(70, 70, 207, 1);
         --dark-grey-opacity-color: hsla(214, 17%, 51%,0.2);
+        --half-light-violet-color: rgba(89, 100, 224, 0.4);
+        --dark-grey-opacity-color: hsla(214, 17%, 51%,0.2);
+        
     }
     *,
     ::before,
