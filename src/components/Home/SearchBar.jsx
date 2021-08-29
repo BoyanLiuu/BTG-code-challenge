@@ -1,8 +1,9 @@
 import styled from "styled-components";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ReactComponent as SearchIcon } from "./../../assets/images/desktop/icon-search.svg";
 import filterIcon from "./../../assets/images/mobile/icon-filter.svg";
 import locationIcon from "./../../assets/images/desktop/icon-location.svg";
+import { AutoComplete } from "antd";
 
 const SearchBarStyledContainer = styled.div`
 	margin: -4rem 2.4rem 0 2.4rem;
@@ -85,7 +86,7 @@ const SearchBarStyledContainer = styled.div`
 	}
 	.searchBar--modal {
 		width: 90%;
-		padding-bottom: 2rem;
+		padding: 2rem;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -102,6 +103,7 @@ const SearchBarStyledContainer = styled.div`
 	}
 
 	.location-container {
+		width: 100%;
 		padding: 2.4rem 0 2.4rem 2.4rem;
 	}
 	.location-container {
@@ -137,6 +139,13 @@ const SearchBarStyledContainer = styled.div`
 		transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 	}
 
+	.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+		border: none;
+	}
+
+	.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+		border: none;
+	}
 	/* Tablet view style */
 	@media (min-width: 768px) {
 		.searchBar--mobile {
@@ -197,22 +206,43 @@ const SearchBarStyledContainer = styled.div`
 	}
 `;
 
-const SearchBar = ({ setFilter }) => {
+const SearchBar = React.memo(({ setSearchField }) => {
 	const [show, setShow] = useState(false);
+	// this is used for country autocomplete
+	const [countriesName, setCountriesName] = useState([]);
 	//used for capture field we want to search
 	const [filterField, setFilterField] = useState({
 		university: "",
 		country: "",
 	});
-
+	// fired up when we press enter or click search button
 	const handleSearch = () => {
-		setFilter(filterField);
-		//reset search field
-		setFilterField({
-			university: "",
-			country: "",
-		});
+		setSearchField(filterField);
+		setShow(false);
 	};
+	// fetch whole data and store it into localstorage and use it in the Home page
+	async function fetchUniversityData() {
+		const endpoint = `http://universities.hipolabs.com/search`;
+		//using await to wait for finishing fetching and store it into an array
+		const result = await fetch(endpoint).then((res) => res.json());
+		localStorage.setItem("wholeData", JSON.stringify(result));
+		//Store list of countries name we have used in our data sets.
+		const set = new Set();
+		const countriesList = [];
+		result.forEach((ele) => {
+			if (!set.has(ele.country)) {
+				countriesList.push({ value: ele.country });
+				set.add(ele.country);
+			}
+		});
+
+		setCountriesName(countriesList);
+	}
+
+	useEffect(() => {
+		fetchUniversityData();
+	}, []);
+
 	// allow enter to start search
 	const handleKeyDown = (e) => {
 		if (e.keyCode === 13) handleSearch();
@@ -241,16 +271,22 @@ const SearchBar = ({ setFilter }) => {
 					alt='location-icon'
 					className='location-icon'
 				/>
-				<input
+
+				<AutoComplete
+					style={{ width: "100%" }}
 					placeholder='Filter by country'
 					aria-label='Enter country name'
-					value={filterField.country}
-					id='address-input'
+					options={countriesName}
+					filterOption={(inputValue, option) =>
+						option.value
+							.toUpperCase()
+							.indexOf(inputValue.toUpperCase()) !== -1
+					}
 					onKeyDown={handleKeyDown}
 					onChange={(e) => {
 						setFilterField({
 							...filterField,
-							country: e.target.value,
+							country: e,
 						});
 					}}
 				/>
@@ -285,15 +321,21 @@ const SearchBar = ({ setFilter }) => {
 							alt='location-icon'
 							className='location-icon'
 						/>
-						<input
-							placeholder='Filter by location...'
-							aria-label='Enter location'
-							value={filterField.country}
+						<AutoComplete
+							style={{ width: "100%" }}
+							placeholder='Filter by country'
+							aria-label='Enter country name'
+							options={countriesName}
+							filterOption={(inputValue, option) =>
+								option.value
+									.toUpperCase()
+									.indexOf(inputValue.toUpperCase()) !== -1
+							}
 							onKeyDown={handleKeyDown}
 							onChange={(e) => {
 								setFilterField({
 									...filterField,
-									country: e.target.value,
+									country: e,
 								});
 							}}
 						/>
@@ -309,6 +351,6 @@ const SearchBar = ({ setFilter }) => {
 			</div>
 		</SearchBarStyledContainer>
 	);
-};
+});
 
 export default SearchBar;

@@ -51,7 +51,7 @@ const HomeDiv = styled.div`
 `;
 
 function Home() {
-	const [filter, setFilter] = useState({
+	const [searchField, setSearchField] = useState({
 		university: "",
 		country: "",
 	});
@@ -70,28 +70,35 @@ function Home() {
 		useState(paginationInitial);
 
 	async function fetchUniversityData() {
-		const endpoint = `http://universities.hipolabs.com/search`;
-		//using await to wait for finishing fetching and store it into an array
-		const result = await fetch(endpoint).then((res) => res.json());
-		const wait = (timeToDelay) =>
-			new Promise((resolve) => setTimeout(resolve, timeToDelay));
-		await wait(1000);
+		let result = [];
+		if (
+			localStorage.wholeData &&
+			searchField.university === "" &&
+			searchField.country === ""
+		) {
+			// if we can find all data from localstorage we get it immediately
+			result = JSON.parse(localStorage.getItem("wholeData"));
+		} else {
+			const endpoint = `http://universities.hipolabs.com/search?name=${searchField.university}&country=${searchField.country}`;
+			result = await fetch(endpoint).then((res) => res.json());
+		}
+
 		setReady(true);
 		if (result.length === 0) setDataNoFound(true);
 
 		/*Set up pagination information */
+
 		// initially we only display first 10 data
 		setUniversityData(result);
+
 		universityPagination.total = result.length;
 		universityPagination.data = result.slice(0, 10);
-		console.log(universityPagination);
 		setUniversityPagination({ ...universityPagination });
 	}
 
 	useEffect(() => {
 		fetchUniversityData();
-	}, [filter]);
-	useEffect(() => {}, [universityData]);
+	}, [searchField]);
 
 	// event listener for change page size and page number
 	const onShowSizeChange = (current, pageSize) => {
@@ -129,7 +136,7 @@ function Home() {
 
 	return (
 		<HomeDiv>
-			<SearchBar setFilter={setFilter} />
+			<SearchBar setSearchField={setSearchField} />
 			{ready && !dataNoFound && (
 				<>
 					<div className='university-lists'>
