@@ -1,7 +1,13 @@
 import styled from "styled-components";
-import { SearchBar, UniversityCard } from "./../components/index";
+import {
+	SearchBar,
+	UniversityCard,
+	SkeletonUniversityCard,
+} from "./../components/index";
 import { useState, useEffect } from "react";
 import { Pagination } from "antd";
+import NoresultIcon from "./../assets/images/data-not-found.svg";
+
 const HomeDiv = styled.div`
 	position: relative;
 	display: flex;
@@ -16,6 +22,10 @@ const HomeDiv = styled.div`
 		display: grid;
 		row-gap: 4.9rem;
 		transition: all 0.08s ease;
+	}
+	.no-result-icon {
+		width: 20rem;
+		height: 20rem;
 	}
 	@media (min-width: 768px) {
 		.university-lists {
@@ -46,6 +56,7 @@ function Home() {
 		country: "",
 	});
 	const [ready, setReady] = useState(false);
+	const [dataNoFound, setDataNoFound] = useState(false);
 	const [universityData, setUniversityData] = useState([]);
 	const paginationInitial = {
 		current: 1,
@@ -54,6 +65,7 @@ function Home() {
 		total: 50,
 		data: [],
 	};
+
 	const [universityPagination, setUniversityPagination] =
 		useState(paginationInitial);
 
@@ -61,7 +73,13 @@ function Home() {
 		const endpoint = `http://universities.hipolabs.com/search`;
 		//using await to wait for finishing fetching and store it into an array
 		const result = await fetch(endpoint).then((res) => res.json());
+		const wait = (timeToDelay) =>
+			new Promise((resolve) => setTimeout(resolve, timeToDelay));
+		await wait(1000);
 		setReady(true);
+		if (result.length === 0) setDataNoFound(true);
+
+		/*Set up pagination information */
 		// initially we only display first 10 data
 		setUniversityData(result);
 		universityPagination.total = result.length;
@@ -73,7 +91,6 @@ function Home() {
 	useEffect(() => {
 		fetchUniversityData();
 	}, [filter]);
-
 	useEffect(() => {}, [universityData]);
 
 	// event listener for change page size and page number
@@ -97,26 +114,50 @@ function Home() {
 
 		setUniversityPagination(newPagination);
 	};
-
-	let renderUniversityList = [];
-	if (true) {
-		renderUniversityList = universityPagination.data.map((item, index) => {
-			return <UniversityCard data={item} key={`${item.name}-${index}`} />;
+	//generate skeletonCard
+	const skeletonItems = Array(10)
+		.fill()
+		.map((item, index) => {
+			return <SkeletonUniversityCard key={index} />;
 		});
-	}
+
+	const renderUniversityList = universityPagination.data.map(
+		(item, index) => {
+			return <UniversityCard data={item} key={`${item.name}-${index}`} />;
+		}
+	);
+
 	return (
 		<HomeDiv>
 			<SearchBar setFilter={setFilter} />
-			<div className='university-lists'>
-				{ready ? renderUniversityList : renderUniversityList}
-			</div>
-			<Pagination
-				{...universityPagination}
-				className='ant-pagination'
-				onChange={(current, pageSize) =>
-					onShowSizeChange(current, pageSize)
-				}
-			/>
+			{ready && !dataNoFound && (
+				<>
+					<div className='university-lists'>
+						{renderUniversityList}
+					</div>
+					<Pagination
+						{...universityPagination}
+						className='ant-pagination'
+						onChange={(current, pageSize) =>
+							onShowSizeChange(current, pageSize)
+						}
+					/>
+				</>
+			)}
+
+			{!ready && !dataNoFound && (
+				<div className='university-lists'>{skeletonItems}</div>
+			)}
+			{ready && dataNoFound && (
+				<>
+					<img
+						src={NoresultIcon}
+						alt='no result'
+						className='no-result-icon'
+					/>
+					<b>Sorry! No data found, Try Something else</b>
+				</>
+			)}
 		</HomeDiv>
 	);
 }

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useEffect } from "react";
+import React from "react";
 import defaultLogo from "./../../assets/images/desktop/icon-default.svg";
 export const UniversityCardStyledContainer = styled.div`
 	width: 100%;
