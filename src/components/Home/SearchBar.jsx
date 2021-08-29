@@ -207,7 +207,7 @@ const SearchBar = ({ setFilter }) => {
 
 	const handleSearch = () => {
 		setFilter(filterField);
-		//reset
+		//reset search field
 		setFilterField({
 			university: "",
 			country: "",
