@@ -81,7 +81,9 @@ function Home() {
 				result = JSON.parse(localStorage.getItem("wholeData"));
 			} else {
 				const endpoint = `https://cross-origin-boyan.herokuapp.com/http://universities.hipolabs.com/search?name=${searchField.university}&country=${searchField.country}`;
-				result = await fetch(endpoint).then((res) => res.json());
+				result = await fetch(endpoint, {
+					headers: { Origin: window.location.host },
+				}).then((res) => res.json());
 			}
 
 			setReady(true);

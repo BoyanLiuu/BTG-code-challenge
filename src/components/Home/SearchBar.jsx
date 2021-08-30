@@ -224,7 +224,9 @@ const SearchBar = React.memo(({ setSearchField }) => {
 	async function fetchUniversityData() {
 		const endpoint = `https://cross-origin-boyan.herokuapp.com/http://universities.hipolabs.com/search`;
 		//using await to wait for finishing fetching and store it into an array
-		const result = await fetch(endpoint).then((res) => res.json());
+		const result = await fetch(endpoint, {
+			headers: { Origin: window.location.host },
+		}).then((res) => res.json());
 		localStorage.setItem("wholeData", JSON.stringify(result));
 		//Store list of countries name we have used in our data sets.
 		const set = new Set();
