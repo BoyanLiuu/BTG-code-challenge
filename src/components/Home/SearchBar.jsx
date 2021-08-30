@@ -222,7 +222,7 @@ const SearchBar = React.memo(({ setSearchField }) => {
 	};
 	// fetch whole data and store it into localstorage and use it in the Home page
 	async function fetchUniversityData() {
-		const endpoint = `https://cross-origin-boyan.herokuapp.com/http://universities.hipolabs.com/search`;
+		const endpoint = `https://university-domains-list-api.herokuapp.com/search`;
 		//using await to wait for finishing fetching and store it into an array
 		const result = await fetch(endpoint, {
 			headers: { Origin: window.location.host },
