@@ -80,9 +80,12 @@ function Home() {
 				// if we can find all data from localstorage we get it immediately
 				result = JSON.parse(localStorage.getItem("wholeData"));
 			} else {
-				const endpoint = `https://university-domains-list-api.herokuapp.com/search?name=${searchField.university}&country=${searchField.country}`;
+				const endpoint = `https://cross-origin-boyan.herokuapp.com/https://university-domains-list-api.herokuapp.com/search?name=${searchField.university}&country=${searchField.country}`;
 				result = await fetch(endpoint, {
-					headers: { Origin: window.location.host },
+					mode: "cors",
+					headers: {
+						"Access-Control-Allow-Origin": "*",
+					},
 				}).then((res) => res.json());
 			}
 
